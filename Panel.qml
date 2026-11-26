@@ -428,7 +428,7 @@ Panel {
 
                     Text {
                         textFormat: Text.PlainText
-                        text: "Powered by xAI"
+                        text: "Powered by SpaceXSI"
                         color: root.textColor
                         font.family: root.fontFamily
                         font.pixelSize: Style.font.bodySmall
@@ -439,7 +439,7 @@ Panel {
                         width: parent.width
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
-                        text: "Content from Grokipedia under the xAI Community License; some articles CC BY-SA 4.0. Unofficial client."
+                        text: "Content from Grokipedia under the SpaceXSI Community License; some articles CC BY-SA 4.0. Unofficial client."
                         color: root.secondaryText
                         font.family: root.fontFamily
                         font.pixelSize: Style.font.caption

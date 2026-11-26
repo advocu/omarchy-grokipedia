@@ -54,17 +54,17 @@ Plugins run inside the `omarchy-shell` process, so this one keeps its network us
 
 Grokipedia sits behind Cloudflare and its markup can change. If the site sends a challenge page, an error, or HTML the plugin does not recognise, the panel says so and offers a button to open grokipedia.com in your browser.
 
-Requests go to grokipedia.com, operated by xAI, and are covered by the xAI Privacy Policy linked below. Qt may keep cookies the site sets (for example Cloudflare's) in memory for the life of the shell session; the plugin does not read, set, or save them.
+Requests go to grokipedia.com, operated by SpaceX Super Intelligence LLC (SpaceXSI), and are covered by the SpaceXSI Privacy Policy linked below. Qt may keep cookies the site sets (for example Cloudflare's) in memory for the life of the shell session; the plugin does not read, set, or save them.
 
 ## Attribution and legal
 
-**Powered by xAI.** Grokipedia content is made available under the xAI Community License (SpaceXSI / xAI), and some articles also under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The panel shows this attribution under the results.
+**Powered by SpaceXSI.** Grokipedia content is made available under the SpaceXSI Community License Agreement (SpaceX Super Intelligence LLC; `grokipedia.com` also displays SpaceXAI in its footer), and some articles also under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). The panel shows this attribution under the results.
 
-- [xAI Terms of Service](https://x.ai/legal/terms-of-service)
-- [xAI Privacy Policy](https://x.ai/legal/privacy-policy)
-- [xAI Acceptable Use Policy](https://x.ai/legal/acceptable-use-policy)
+- [SpaceXSI Terms of Service](https://x.ai/legal/terms-of-service)
+- [SpaceXSI Privacy Policy](https://x.ai/legal/privacy-policy)
+- [SpaceXSI Acceptable Use Policy](https://x.ai/legal/acceptable-use-policy)
 
-This is an unofficial client. It is not made, endorsed, or supported by xAI.
+This is an unofficial client. It is not made, endorsed, or supported by SpaceXSI (SpaceX Super Intelligence LLC) or SpaceXAI.
 
 ## Remove
 
