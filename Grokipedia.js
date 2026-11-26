@@ -19,7 +19,7 @@ var MAX_SLUG_CHARS = 256
 var MAX_TITLE_CHARS = 160
 var MAX_BRIEF_CHARS = 320
 var MAX_FEATURED = 5
-var MAX_RESULTS = 12
+var MAX_RESULTS = 20
 
 var HOME_URL = "https://grokipedia.com/"
 var SEARCH_PREFIX = "https://grokipedia.com/search?q="

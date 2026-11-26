@@ -36,6 +36,7 @@ Panel {
     property string searchError: ""
     property string lastQuery: ""
     property var results: []
+    property int selectedResultIndex: -1
 
     // The one in-flight request (a Grokipedia.js handle), or null.
     property var request: null
@@ -47,6 +48,7 @@ Panel {
         if (root.opened) {
             root.loadFeatured()
         } else {
+            root.selectedResultIndex = -1
             root.cancelRequest(root.reasonClosed)
         }
     }
@@ -56,6 +58,7 @@ Panel {
     }
 
     function close() {
+        root.selectedResultIndex = -1
         root.cancelRequest(root.reasonClosed)
         root.controller.hide()
     }
@@ -146,6 +149,7 @@ Panel {
         if (query.length === 0) return
         var url = Grok.searchUrl(query)
         root.lastQuery = query
+        root.selectedResultIndex = -1
         root.results = []
         if (!url) {
             root.searchState = "error"
@@ -175,6 +179,7 @@ Panel {
         root.cancelRequest(root.reasonHome)
         searchField.text = ""
         root.lastQuery = ""
+        root.selectedResultIndex = -1
         root.results = []
         root.searchError = ""
         root.searchState = "idle"
@@ -183,6 +188,76 @@ Panel {
         if (!featuredFresh)
             root.loadFeatured()
         searchField.forceActiveFocus()
+    }
+
+    function selectResult(index) {
+        if (root.searchState !== "ready" || !root.results || root.results.length === 0) {
+            root.selectedResultIndex = -1
+            searchField.forceActiveFocus()
+            return
+        }
+        if (index < 0) {
+            root.selectedResultIndex = -1
+            searchField.forceActiveFocus()
+            return
+        }
+        if (index >= root.results.length)
+            index = root.results.length - 1
+        root.selectedResultIndex = index
+        resultsView.forceActiveFocus()
+        resultsView.positionViewAtIndex(root.selectedResultIndex, ListView.Contain)
+    }
+
+    function openSelectedResult() {
+        if (root.selectedResultIndex < 0 || !root.results || root.selectedResultIndex >= root.results.length)
+            return
+        var item = root.results[root.selectedResultIndex]
+        if (item && item.slug)
+            root.openMore(item.slug, root.lastQuery)
+    }
+
+    function handleResultsKey(event) {
+        if (event.key === Qt.Key_Escape) {
+            root.close()
+            event.accepted = true
+        } else if (event.key === Qt.Key_Down) {
+            if (root.selectedResultIndex < root.results.length - 1)
+                root.selectResult(root.selectedResultIndex + 1)
+            event.accepted = true
+        } else if (event.key === Qt.Key_Up) {
+            if (root.selectedResultIndex <= 0)
+                root.selectResult(-1)
+            else
+                root.selectResult(root.selectedResultIndex - 1)
+            event.accepted = true
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+            root.openSelectedResult()
+            event.accepted = true
+        } else if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
+            root.switchPanel(event.key === Qt.Key_Backtab ? -1 : 1)
+            event.accepted = true
+        } else if (event.key === Qt.Key_Backspace) {
+            root.focusSearchFromResults("backspace")
+            event.accepted = true
+        } else if (!(event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier)) && event.text && event.text.length > 0 && event.text !== "\n" && event.text !== "\r" && event.text !== "\t" && event.text.charCodeAt(0) >= 32) {
+            root.focusSearchFromResults(event.text)
+            event.accepted = true
+        }
+    }
+
+    function focusSearchFromResults(textAction) {
+        root.selectedResultIndex = -1
+        if (textAction === "backspace") {
+            var t = searchField.text
+            if (t.length > 0)
+                searchField.text = t.substring(0, t.length - 1)
+        } else if (typeof textAction === "string" && textAction.length > 0) {
+            var room = Grok.MAX_QUERY_CHARS - searchField.text.length
+            if (room > 0)
+                searchField.text += textAction.substring(0, room)
+        }
+        searchField.forceActiveFocus()
+        searchField.cursorPosition = searchField.text.length
     }
 
     // Opens only https://grokipedia.com/page/{slug}, or the search page or
@@ -225,7 +300,7 @@ Panel {
         PanelKeyCatcher {
             id: keyCatcher
             anchors.fill: parent
-            blocked: searchField.activeFocus
+            blocked: searchField.activeFocus || resultsView.activeFocus || root.selectedResultIndex >= 0
             onCloseRequested: root.close()
             onTabRequested: function(direction) {
                 root.switchPanel(direction)
@@ -248,6 +323,8 @@ Panel {
                         foreground: root.textColor
                         font.family: root.fontFamily
                         maximumLength: Grok.MAX_QUERY_CHARS
+                        onActiveFocusChanged: if (activeFocus) root.selectedResultIndex = -1
+                        onTextChanged: root.selectedResultIndex = -1
                         Keys.onPressed: function(event) {
                             if (event.key === Qt.Key_Escape) {
                                 root.close()
@@ -255,6 +332,11 @@ Panel {
                             } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                                 root.submitSearch()
                                 event.accepted = true
+                            } else if (event.key === Qt.Key_Down) {
+                                if (root.searchState === "ready" && root.results && root.results.length > 0) {
+                                    root.selectResult(0)
+                                    event.accepted = true
+                                }
                             } else if (event.key === Qt.Key_Tab || event.key === Qt.Key_Backtab) {
                                 root.switchPanel(event.key === Qt.Key_Backtab ? -1 : 1)
                                 event.accepted = true
@@ -280,7 +362,9 @@ Panel {
                     Text {
                         width: parent.width - (homeButton.visible ? homeButton.width + parent.spacing : 0)
                         textFormat: Text.PlainText
-                        text: "Type a topic and press Enter to search"
+                        text: root.searchState === "ready" && root.results.length > 0
+                            ? "Use ↑/↓ to select a result and press Enter to open"
+                            : "Type a topic and press Enter to search"
                         color: root.secondaryText
                         font.family: root.fontFamily
                         font.italic: true
@@ -323,82 +407,83 @@ Panel {
                 }
 
                 // ---- Search results
-                Flickable {
-                    id: resultsScroll
+                ListView {
+                    id: resultsView
+                    objectName: "resultsView"
                     width: parent.width
                     visible: root.searchState === "ready"
-                    height: visible ? Math.min(resultsColumn.implicitHeight, Style.space(380)) : 0
-                    contentWidth: width
-                    contentHeight: resultsColumn.implicitHeight
+                    height: visible ? Math.min(contentHeight, Style.space(380)) : 0
                     clip: true
                     boundsBehavior: Flickable.StopAtBounds
                     interactive: contentHeight > height
+                    spacing: Style.space(6)
+                    model: root.results
+                    keyNavigationEnabled: false
+                    highlightFollowsCurrentItem: false
 
-                    Column {
-                        id: resultsColumn
-                        width: resultsScroll.width
-                        spacing: Style.space(6)
+                    delegate: Rectangle {
+                        id: resultCard
+                        required property var modelData
+                        required property int index
+                        readonly property bool isSelected: root.selectedResultIndex === resultCard.index
+                        width: resultsView.width
+                        height: resultRow.implicitHeight + Style.space(16)
+                        radius: Style.cornerRadius
+                        color: isSelected ? Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.22) : Style.normalFill
+                        border.width: 2
+                        border.color: isSelected ? root.accentColor : "transparent"
 
-                        Repeater {
-                            model: root.results
+                        Row {
+                            id: resultRow
+                            x: Style.space(8)
+                            y: Style.space(8)
+                            width: parent.width - Style.space(16)
+                            spacing: Style.space(8)
 
-                            delegate: Rectangle {
-                                id: resultCard
-                                required property var modelData
-                                width: resultsColumn.width
-                                height: resultRow.implicitHeight + Style.space(16)
-                                radius: Style.cornerRadius
-                                color: Style.normalFill
+                            Column {
+                                width: parent.width - resultMore.width - parent.spacing
+                                spacing: Style.space(2)
 
-                                Row {
-                                    id: resultRow
-                                    x: Style.space(8)
-                                    y: Style.space(8)
-                                    width: parent.width - Style.space(16)
-                                    spacing: Style.space(8)
+                                Text {
+                                    width: parent.width
+                                    textFormat: Text.PlainText
+                                    text: resultCard.modelData.title
+                                    elide: Text.ElideRight
+                                    color: root.textColor
+                                    font.family: root.fontFamily
+                                    font.pixelSize: Style.font.subtitle
+                                    font.bold: true
+                                }
 
-                                    Column {
-                                        width: parent.width - resultMore.width - parent.spacing
-                                        spacing: Style.space(2)
-
-                                        Text {
-                                            width: parent.width
-                                            textFormat: Text.PlainText
-                                            text: resultCard.modelData.title
-                                            elide: Text.ElideRight
-                                            color: root.textColor
-                                            font.family: root.fontFamily
-                                            font.pixelSize: Style.font.subtitle
-                                            font.bold: true
-                                        }
-
-                                        Text {
-                                            width: parent.width
-                                            visible: text !== ""
-                                            textFormat: Text.PlainText
-                                            text: resultCard.modelData.snippet
-                                            wrapMode: Text.WordWrap
-                                            maximumLineCount: 3
-                                            elide: Text.ElideRight
-                                            color: root.bodyText
-                                            font.family: root.fontFamily
-                                            font.pixelSize: Style.font.bodySmall
-                                        }
-                                    }
-
-                                    Button {
-                                        id: resultMore
-                                        text: "More"
-                                        bordered: true
-                                        foreground: root.textColor
-                                        fontFamily: root.fontFamily
-                                        tooltipText: "Open on grokipedia.com"
-                                        onClicked: root.openMore(resultCard.modelData.slug, root.lastQuery)
-                                    }
+                                Text {
+                                    width: parent.width
+                                    visible: text !== ""
+                                    textFormat: Text.PlainText
+                                    text: resultCard.modelData.snippet
+                                    wrapMode: Text.WordWrap
+                                    maximumLineCount: 3
+                                    elide: Text.ElideRight
+                                    color: root.bodyText
+                                    font.family: root.fontFamily
+                                    font.pixelSize: Style.font.bodySmall
                                 }
                             }
+
+                            Button {
+                                id: resultMore
+                                text: "More"
+                                bordered: true
+                                foreground: root.textColor
+                                fontFamily: root.fontFamily
+                                tooltipText: "Open on grokipedia.com"
+                                onClicked: root.openMore(resultCard.modelData.slug, root.lastQuery)
+                            }
                         }
+
+                        Keys.onPressed: function(event) { root.handleResultsKey(event) }
                     }
+
+                    Keys.onPressed: function(event) { root.handleResultsKey(event) }
                 }
 
                 // ---- Featured (Grokipedia's Featured shelf, not an article of the day)
