@@ -41,6 +41,7 @@ Panel {
     property var request: null
     readonly property string reasonClosed: "Panel closed."
     readonly property string reasonReplaced: "Replaced by a newer request."
+    readonly property string reasonHome: "Returned home."
 
     onOpenedChanged: {
         if (root.opened) {
@@ -96,7 +97,7 @@ Panel {
     }
 
     function cancelled(error) {
-        return error === root.reasonClosed || error === root.reasonReplaced
+        return error === root.reasonClosed || error === root.reasonReplaced || error === root.reasonHome
     }
 
     function advanceFeatured() {
@@ -168,6 +169,20 @@ Panel {
             root.results = items
             root.searchState = items.length > 0 ? "ready" : "empty"
         })
+    }
+
+    function goHome() {
+        root.cancelRequest(root.reasonHome)
+        searchField.text = ""
+        root.lastQuery = ""
+        root.results = []
+        root.searchError = ""
+        root.searchState = "idle"
+        var now = Date.now()
+        var featuredFresh = root.featuredState === "ready" && root.featuredItems.length > 0 && now - root.featuredLoadedAt < root.featuredFreshMs
+        if (!featuredFresh)
+            root.loadFeatured()
+        searchField.forceActiveFocus()
     }
 
     // Opens only https://grokipedia.com/page/{slug}, or the search page or
@@ -255,6 +270,32 @@ Panel {
                         fontFamily: root.fontFamily
                         anchors.verticalCenter: searchField.verticalCenter
                         onClicked: root.submitSearch()
+                    }
+                }
+
+                Row {
+                    width: parent.width
+                    spacing: Style.space(8)
+
+                    Text {
+                        width: parent.width - (homeButton.visible ? homeButton.width + parent.spacing : 0)
+                        textFormat: Text.PlainText
+                        text: "Type a topic and press Enter to search"
+                        color: root.secondaryText
+                        font.family: root.fontFamily
+                        font.italic: true
+                        font.pixelSize: Style.font.caption
+                        anchors.verticalCenter: parent.verticalCenter
+                    }
+
+                    Button {
+                        id: homeButton
+                        visible: root.searchState !== "idle"
+                        text: "Home"
+                        bordered: true
+                        foreground: root.textColor
+                        fontFamily: root.fontFamily
+                        onClicked: root.goHome()
                     }
                 }
 

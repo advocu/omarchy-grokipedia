@@ -159,15 +159,21 @@ function stripTags(s) {
 }
 
 // Plain display text: tags stripped (again after decoding, so encoded markup
-// never shows), entities decoded, whitespace collapsed,
+// never shows), entities decoded, empty or truncated markdown citation
+// links such as [](https...) removed, whitespace collapsed,
 // control characters removed, capped at maxChars with an ellipsis.
 function cleanText(s, maxChars) {
     var t = decodeEntities(stripTags(s))
         .replace(/<\/?[A-Za-z][^<>]*>/g, " ")
         .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
+        .replace(/\[\]\([^)]*\)/g, " ")
+        .replace(/\[\]\([^)]*$/g, "")
         .replace(/\s+/g, " ")
         .trim()
-    if (maxChars > 0 && t.length > maxChars) t = t.substring(0, maxChars - 1).replace(/\s+\S*$/, "") + "\u2026"
+    if (maxChars > 0 && t.length > maxChars) {
+        t = t.substring(0, maxChars - 1).replace(/\[\]\([^)]*$/g, "")
+        t = t.replace(/\s+\S*$/, "") + "\u2026"
+    }
     return t
 }
 
