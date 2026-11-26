@@ -16,7 +16,8 @@ Panel {
     property var hostWidget: null
 
     readonly property color textColor: root.barForeground
-    readonly property color mutedText: Commons.Color.muted
+    readonly property color bodyText: Qt.rgba(root.textColor.r, root.textColor.g, root.textColor.b, 0.90)
+    readonly property color secondaryText: Qt.rgba(root.textColor.r, root.textColor.g, root.textColor.b, 0.78)
     readonly property color accentColor: Commons.Color.accent
     readonly property color warnColor: Commons.Color.warning
     readonly property string fontFamily: root.bar ? root.bar.fontFamily : Style.font.family
@@ -252,7 +253,7 @@ Panel {
                     text: root.searchState === "loading" ? "Searching\u2026"
                         : root.searchState === "empty" ? "No results for \u201c" + root.lastQuery + "\u201d."
                         : root.searchError
-                    color: root.searchState === "error" ? root.warnColor : root.mutedText
+                    color: root.searchState === "error" ? root.warnColor : root.secondaryText
                     font.family: root.fontFamily
                     font.pixelSize: Style.font.body
                 }
@@ -324,7 +325,7 @@ Panel {
                                             wrapMode: Text.WordWrap
                                             maximumLineCount: 3
                                             elide: Text.ElideRight
-                                            color: root.mutedText
+                                            color: root.bodyText
                                             font.family: root.fontFamily
                                             font.pixelSize: Style.font.bodySmall
                                         }
@@ -379,7 +380,7 @@ Panel {
                                 : root.featuredState === "empty" ? "No Featured items found on grokipedia.com."
                                 : root.featuredState === "loading" ? "Loading Featured\u2026"
                                 : "Featured loads when the panel opens."
-                            color: root.featuredState === "error" ? root.warnColor : root.mutedText
+                            color: root.featuredState === "error" ? root.warnColor : root.secondaryText
                             font.family: root.fontFamily
                             font.pixelSize: Style.font.body
                         }
@@ -404,7 +405,7 @@ Panel {
                             wrapMode: Text.WordWrap
                             maximumLineCount: 4
                             elide: Text.ElideRight
-                            color: root.mutedText
+                            color: root.bodyText
                             font.family: root.fontFamily
                             font.pixelSize: Style.font.body
                         }
@@ -439,7 +440,7 @@ Panel {
                         textFormat: Text.PlainText
                         wrapMode: Text.WordWrap
                         text: "Content from Grokipedia under the xAI Community License; some articles CC BY-SA 4.0. Unofficial client."
-                        color: root.mutedText
+                        color: root.secondaryText
                         font.family: root.fontFamily
                         font.pixelSize: Style.font.caption
                     }
