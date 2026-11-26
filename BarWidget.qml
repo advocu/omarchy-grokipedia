@@ -54,7 +54,7 @@ BarWidget {
         labelVisible: false
         hasVisualContent: true
         fixedWidth: Math.max(20, Math.round(button.barSize * 0.84))
-        tooltipText: "Search Grokipedia"
+        tooltipText: "Grokipedia Bar"
         onPressed: function(buttonCode) {
             if (buttonCode === Qt.LeftButton) root.toggle()
         }

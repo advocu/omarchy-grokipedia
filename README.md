@@ -1,6 +1,6 @@
-# Grokipedia for Omarchy
+# Grokipedia Bar
 
-An unofficial Grokipedia client for the Omarchy top bar. Click the `Gk` button to open a panel. Type a search, press Enter, and read a short brief for each result. **More** opens the article on grokipedia.com in your browser.
+Grokipedia Bar is an unofficial Grokipedia client for the Omarchy top bar. Click the `Gk` button to open a panel. Type a search, press Enter, and read a short brief for each result. **More** opens the article on grokipedia.com in your browser.
 
 When the panel opens it also shows one item from Grokipedia's **Featured** shelf: the item the homepage is featuring at that moment. It is not an "article of the day".
 
