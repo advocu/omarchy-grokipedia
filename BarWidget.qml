@@ -53,7 +53,7 @@ BarWidget {
         text: ""
         labelVisible: false
         hasVisualContent: true
-        fixedWidth: Math.max(28, Math.round(button.barSize * 1.15))
+        fixedWidth: Math.max(24, Math.round(button.barSize * 0.96))
         tooltipText: "Search Grokipedia"
         onPressed: function(buttonCode) {
             if (buttonCode === Qt.LeftButton) root.toggle()
@@ -62,8 +62,8 @@ BarWidget {
         Canvas {
             id: iconCanvas
             anchors.centerIn: parent
-            width: Math.max(22, Math.round(button.barSize * 0.90))
-            height: Math.max(20, Math.round(button.barSize * 0.84))
+            width: Math.max(18, Math.round(button.barSize * 0.72))
+            height: Math.max(17, Math.round(button.barSize * 0.68))
             scale: button.pressScale
             antialiasing: true
 
@@ -83,8 +83,8 @@ BarWidget {
                 ctx.lineCap = "round"
                 ctx.lineJoin = "round"
 
-                // Prominent book border (hardcover silhouette + left spine)
-                ctx.lineWidth = 1.9
+                // Book border (hardcover silhouette + left spine)
+                ctx.lineWidth = 1.8
                 ctx.beginPath()
                 ctx.moveTo(2.4, 2.0)
                 ctx.lineTo(20.0, 2.0)
@@ -99,29 +99,46 @@ BarWidget {
                 ctx.stroke()
 
                 // Book spine groove
-                ctx.lineWidth = 1.5
+                ctx.lineWidth = 1.4
                 ctx.beginPath()
                 ctx.moveTo(5.2, 2.2)
                 ctx.lineTo(5.2, 21.8)
                 ctx.stroke()
 
-                // Large Grok singularity symbol inside the book cover
-                var cx = 13.7
-                var cy = 12.1
-                var r = 5.4
+                // Grok singularity emblem (two tapered crescent-slash shapes)
+                // Fit inside cover area x:[6.6..20.8], y:[3.6..20.4]
+                ctx.save()
+                ctx.translate(6.8, 4.0)
+                ctx.scale(0.57, 0.57)
 
-                // Open singularity ring (broken at top-right for the slash)
-                ctx.lineWidth = 2.0
+                // Left-top crescent tapering down-left into sharp tail
                 ctx.beginPath()
-                ctx.arc(cx, cy, r, 0.22 * Math.PI, 1.82 * Math.PI, false)
-                ctx.stroke()
+                ctx.moveTo(1.4, 23.0)
+                ctx.quadraticCurveTo(5.8, 17.6, 5.2, 15.0)
+                ctx.bezierCurveTo(3.6, 11.2, 5.2, 5.8, 9.6, 4.2)
+                ctx.bezierCurveTo(12.8, 3.0, 15.8, 3.8, 17.6, 5.4)
+                ctx.lineTo(15.2, 7.0)
+                ctx.bezierCurveTo(13.6, 5.8, 11.4, 5.6, 9.6, 6.8)
+                ctx.bezierCurveTo(6.8, 8.6, 6.4, 12.6, 8.6, 15.4)
+                ctx.lineTo(1.4, 23.0)
+                ctx.closePath()
+                ctx.fill()
 
-                // Bold diagonal singularity slash cutting through the ring
-                ctx.lineWidth = 2.15
+                // Right-bottom crescent with sharp upward-right spike + inner needle
                 ctx.beginPath()
-                ctx.moveTo(cx - 5.9, cy + 5.4)
-                ctx.lineTo(cx + 6.4, cy - 5.9)
-                ctx.stroke()
+                ctx.moveTo(22.8, 1.4)
+                ctx.lineTo(10.0, 14.4)
+                ctx.lineTo(17.4, 8.8)
+                ctx.bezierCurveTo(19.0, 11.6, 18.0, 16.0, 14.6, 17.6)
+                ctx.bezierCurveTo(12.2, 18.8, 9.4, 18.4, 7.6, 17.0)
+                ctx.lineTo(5.6, 19.0)
+                ctx.bezierCurveTo(8.4, 21.4, 13.0, 22.0, 16.6, 19.8)
+                ctx.bezierCurveTo(20.6, 17.4, 22.0, 12.2, 20.4, 7.8)
+                ctx.quadraticCurveTo(20.0, 5.6, 22.8, 1.4)
+                ctx.closePath()
+                ctx.fill()
+
+                ctx.restore()
             }
         }
     }
