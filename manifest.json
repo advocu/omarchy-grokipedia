@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "io.github.advocu.grokipedia",
+  "name": "Grokipedia",
+  "version": "1.0.0",
+  "author": "Suyash Verma",
+  "license": "MIT",
+  "description": "Unofficial Grokipedia bar widget. Search Grokipedia from the bar, read brief results and the Featured shelf, and open an article in your browser.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Grokipedia",
+    "category": "Info",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}
