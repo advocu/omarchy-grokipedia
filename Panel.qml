@@ -26,6 +26,8 @@ Panel {
     property string featuredState: "idle"
     property string featuredError: ""
     property var featured: null
+    property var featuredItems: []
+    property int featuredIndex: -1
     property double featuredLoadedAt: 0
     readonly property int featuredFreshMs: 10 * 60 * 1000
 
@@ -97,9 +99,18 @@ Panel {
         return error === root.reasonClosed || error === root.reasonReplaced
     }
 
+    function advanceFeatured() {
+        if (!root.featuredItems || root.featuredItems.length === 0) return
+        root.featuredIndex = (root.featuredIndex + 1) % root.featuredItems.length
+        root.featured = root.featuredItems[root.featuredIndex]
+    }
+
     function loadFeatured() {
         var now = Date.now()
-        if (root.featuredState === "ready" && now - root.featuredLoadedAt < root.featuredFreshMs) return
+        if (root.featuredState === "ready" && root.featuredItems.length > 0 && now - root.featuredLoadedAt < root.featuredFreshMs) {
+            root.advanceFeatured()
+            return
+        }
         if (root.searchState === "loading") return
         root.featuredState = "loading"
         root.featuredError = ""
@@ -117,10 +128,13 @@ Panel {
             text = ""
             if (items.length === 0) {
                 root.featured = null
+                root.featuredItems = []
+                root.featuredIndex = -1
                 root.featuredState = "empty"
                 return
             }
-            root.featured = items[0]
+            root.featuredItems = items
+            root.advanceFeatured()
             root.featuredLoadedAt = Date.now()
             root.featuredState = "ready"
         })
