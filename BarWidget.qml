@@ -53,7 +53,7 @@ BarWidget {
         text: ""
         labelVisible: false
         hasVisualContent: true
-        fixedWidth: Math.max(24, Math.round(button.barSize * 0.96))
+        fixedWidth: Math.max(20, Math.round(button.barSize * 0.84))
         tooltipText: "Search Grokipedia"
         onPressed: function(buttonCode) {
             if (buttonCode === Qt.LeftButton) root.toggle()
@@ -62,8 +62,8 @@ BarWidget {
         Canvas {
             id: iconCanvas
             anchors.centerIn: parent
-            width: Math.max(18, Math.round(button.barSize * 0.72))
-            height: Math.max(17, Math.round(button.barSize * 0.68))
+            width: Math.max(15, Math.round(button.barSize * 0.58))
+            height: Math.max(14, Math.round(button.barSize * 0.54))
             scale: button.pressScale
             antialiasing: true
 
